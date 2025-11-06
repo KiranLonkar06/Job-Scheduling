@@ -4,7 +4,6 @@ body {
     font-family: Poppins, sans-serif;
     background: #5f83bc;
 }
-
 /* INTERMEDIATE PAGE */
 .intro-body {
     display: flex;
@@ -14,6 +13,34 @@ body {
     background: linear-gradient(135deg, #a2d2ff, #cdb4db, #ffc8dd);
     overflow: hidden;
 }
+
+.card {
+    width: 220px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.08);
+    margin: 20px;
+    text-align: center;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+/* HOVER EFFECT — color + scale + glow */
+.card:hover {
+    transform: scale(1.08);
+    background: linear-gradient(135deg, #a2d2ff, #caffbf, #ffc8dd);
+    box-shadow: 0 0 20px rgba(0,0,0,0.25);
+}
+
+.algo-title {
+    text-align: center;
+    width: 100%;
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
 
 .intro-container {
     text-align: center;
