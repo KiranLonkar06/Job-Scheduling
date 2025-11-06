@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FCFS Scheduling</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h2 class="title">FCFS Scheduling</h2>
+
+    <div class="form-container">
+        <label>Number of Processes:</label>
+        <input type="number" id="numProc" min="1" />
+
+        <button onclick="createInputs()">Generate Input Fields</button>
+
+        <div id="inputs"></div>
+
+        <button onclick="calculateFCFS()" id="calcBtn" style="display:none;">Calculate</button>
+        <div id="output"></div>
+        <canvas id="ganttChart" width="700" height="100"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

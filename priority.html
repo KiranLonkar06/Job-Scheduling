@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Priority Scheduling</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h2 class="title">Priority Scheduling</h2>
+
+    <div class="form-container">
+        <label>Number of Processes:</label>
+        <input type="number" id="numPp" min="1">
+
+        <button onclick="createPriorityInputs()">Generate Inputs</button>
+
+        <div id="priorityInputs"></div>
+
+        <button onclick="calculatePriority()" id="pCalcBtn" style="display:none;">Calculate</button>
+        <div id="pOutput"></div>
+        <canvas id="priorityChart" width="700" height="100"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
