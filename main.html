@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduling Algorithms</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <h2>Scheduling Algorithms</h2>
+    </nav>
+
+    <div class="option-container">
+        <div class="card" onclick="selectAlgo('job')">
+            <h3>Job Scheduling</h3>
+            <p>Basic job scheduler</p>
+        </div>
+
+        <div class="card" onclick="selectAlgo('fcfs')">
+            <h3>First Come First Serve</h3>
+            <p>Simple non-preemptive</p>
+        </div>
+
+        <div class="card" onclick="selectAlgo('priority')">
+            <h3>Priority Scheduling</h3>
+            <p>Priority based execution</p>
+        </div>
+
+        <div class="card" onclick="selectAlgo('rr')">
+            <h3>Round Robin</h3>
+            <p>Cyclic time-sharing</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
