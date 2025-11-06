@@ -234,20 +234,70 @@ function calculateRR() {
 
     queue.sort((a,b)=>a.at - b.at);
 
-    let time = 0, result = [];
-    while (queue.some(p=>p.rt>0)) {
-        queue.forEach(p=>{
-            if (p.rt > 0 && p.at <= time) {
-                let run = Math.min(quantum, p.rt);
-                let start = time;
-                time += run;
-                p.rt -= run;
-                result.push({pid:p.pid, start, finish:time});
-            }
-        });
+    let gantt = [];
+
+    while(queue.length > 0) {
+        let p = queue.shift();
+
+        let execTime = Math.min(p.bt, quantum);
+        let start = time;
+        let finish = time + execTime;
+
+        gantt.push({ pid: p.pid, start, finish });
+
+        time = finish;
+        p.bt -= execTime;
+
+        if(p.bt > 0) queue.push(p);
     }
+    drawGantt(gantt);
+    result.push({ pid: job.id, start: current, finish: current + job.duration });
+    drawGantt(result);
+
 
     // Show Gantt
     document.getElementById("rrOutput").innerHTML = "Gantt Chart:";
     drawGantt(result);
 }
+
+function drawGantt(processes) {
+    let canvas = document.getElementById("ganttChart");
+    if (!canvas) return; // safety check
+    let ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let x = 10;
+
+    processes.forEach((p,i) => {
+        let width = (p.finish - p.start) * 30;
+        ctx.fillStyle = `hsl(${i*70}, 70%, 75%)`; // soft pastel colors
+        ctx.fillRect(x, 40, width, 35);
+        ctx.strokeRect(x, 40, width, 35);
+
+        ctx.fillStyle = "#000";
+        ctx.fillText(`P${p.pid}`, x + width/2 - 5, 60);
+
+        x += width;
+    });
+}
+function drawGantt(processes) {
+    let canvas = document.getElementById("ganttChart");
+    if (!canvas) return; // safety check
+    let ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let x = 10;
+
+    processes.forEach((p,i) => {
+        let width = (p.finish - p.start) * 30;
+        ctx.fillStyle = `hsl(${i*70}, 70%, 75%)`; // soft pastel colors
+        ctx.fillRect(x, 40, width, 35);
+        ctx.strokeRect(x, 40, width, 35);
+
+        ctx.fillStyle = "#000";
+        ctx.fillText(`P${p.pid}`, x + width/2 - 5, 60);
+
+        x += width;
+    });
+}
+drawGantt(result);
