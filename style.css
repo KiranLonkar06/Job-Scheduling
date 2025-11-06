@@ -13,6 +13,17 @@ body {
     background: linear-gradient(135deg, #a2d2ff, #cdb4db, #ffc8dd);
     overflow: hidden;
 }
+.title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a2d2ff, #caffbf, #ffc8dd);
+    width: 60%;
+    margin: 30px auto;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+}
 
 .card {
     width: 220px;
@@ -86,7 +97,7 @@ body {
     font-size: 1.1rem;
     border-radius: 30px;
     cursor: pointer;
-    background: white;
+    background: rgb(184, 65, 65);
     transition: transform 0.3s ease;
     box-shadow: 0 0 12px rgba(255,255,255,0.4);
 }
