@@ -1,3 +1,11 @@
+<script>
+const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "login.html";
+}
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,9 +15,22 @@
     <link rel="stylesheet" href="style.css">
     
 </head>
-<body>
+<body >
+    <!-- <button onclick="logout()">Logout</button>
+    <script>
+    function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+    }
+    </script> -->
+    <button id="logout" onclick="logout()">Logout</button>
 
+    <button id ="themeToggle">Dark Mode</button>
     <nav class="navbar">
+        <div id="authArea"></div>
+
+        <!-- <button onclick="logout()">Logout</button> -->
+
         <h2>Scheduling Algorithms</h2>
     </nav>
 
@@ -32,5 +53,13 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <script>
+    function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+    }
+    </script>
+
 </body>
 </html>

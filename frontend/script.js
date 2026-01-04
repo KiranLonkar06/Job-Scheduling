@@ -1,3 +1,7 @@
+// ===== GLOBAL RESULT STORE =====
+let lastResult = [];
+
+
 function goToMain() {
     window.location.href = "main.html";
 }
@@ -41,7 +45,7 @@ function createInputs() {
 }
 
 function calculateFCFS() {
-    let n = document.getElementById("numProc").value;
+    let n = parseInt(document.getElementById("numProc").value);
     let processes = [];
 
     for (let i = 0; i < n; i++) {
@@ -75,6 +79,18 @@ function calculateFCFS() {
 
     document.getElementById("output").innerHTML = out;
     drawGantt(result);
+
+    lastResult = [];
+
+    result.forEach(r => {
+        lastResult.push({
+            process: "P" + r.pid,
+            start: r.start,
+            finish: r.finish,
+            waiting: r.wt,
+            turnaround: r.tat
+        });
+    });
 }
 
 /* ------------------------- Job Scheduling ------------------------- */
@@ -94,39 +110,66 @@ function createJobInputs() {
 }
 
 function calculateJobScheduling() {
-    let n = document.getElementById("numJob").value;
+    let n = parseInt(document.getElementById("numJob").value);
     let jobs = [];
 
     for (let i = 0; i < n; i++) {
         jobs.push({
-            id:i+1,
-            profit:parseInt(document.getElementById("p"+i).value),
-            deadline:parseInt(document.getElementById("d"+i).value)
+            id: i + 1,
+            profit: parseInt(document.getElementById("p" + i).value),
+            deadline: parseInt(document.getElementById("d" + i).value)
         });
     }
 
-    jobs.sort((a,b)=>b.profit - a.profit);
+    // sort by profit (descending)
+    jobs.sort((a, b) => b.profit - a.profit);
 
-    let maxDeadline = Math.max(...jobs.map(j=>j.deadline));
+    let maxDeadline = Math.max(...jobs.map(j => j.deadline));
     let slot = Array(maxDeadline).fill(null);
     let result = [];
 
-    jobs.forEach(j=>{
-        for (let i=j.deadline-1; i>=0; i--) {
+    // JOB SELECTION
+    jobs.forEach(job => {
+        for (let i = job.deadline - 1; i >= 0; i--) {
             if (!slot[i]) {
-                slot[i] = j;
-                result.push({pid:j.id, start:i, finish:i+1});
+                slot[i] = job;
+                result.push({
+                    pid: job.id,
+                    start: i,
+                    finish: i + 1
+                });
                 break;
             }
         }
     });
 
-    let totalProfit = result.reduce((a,b)=>a + jobs.find(x=>x.id===b.pid).profit, 0);
+    // ===== SAVE RESULT FOR DOWNLOAD =====
+    lastResult = [];
 
-    let out = `<h3>Total Profit = ${totalProfit}</h3><table><tr><th>Time Slot</th><th>Job</th></tr>`;
-    slot.forEach((s,i)=>{
-        out += `<tr><td>${i+1}</td><td>${s? "J"+s.id:"Empty"}</td></tr>`;
+    result.forEach(r => {
+        const job = jobs.find(j => j.id === r.pid);
+        lastResult.push({
+            job: "J" + r.pid,
+            timeSlot: r.start + 1,
+            profit: job.profit,
+            deadline: job.deadline
+        });
     });
+
+    console.log("Saved Job Scheduling result:", lastResult);
+
+    // TOTAL PROFIT
+    let totalProfit = lastResult.reduce((sum, j) => sum + j.profit, 0);
+
+    // OUTPUT TABLE
+    let out = `<h3>Total Profit = ${totalProfit}</h3>
+               <table>
+               <tr><th>Time Slot</th><th>Job</th></tr>`;
+
+    slot.forEach((s, i) => {
+        out += `<tr><td>${i + 1}</td><td>${s ? "J" + s.id : "Empty"}</td></tr>`;
+    });
+
     out += "</table>";
 
     document.getElementById("jobOutput").innerHTML = out;
@@ -151,34 +194,50 @@ function createPriorityInputs() {
 }
 
 function calculatePriority() {
-    let n = document.getElementById("numPp").value;
+    let n = parseInt(document.getElementById("numPp").value);
     let processes = [];
 
-    for (let i=0; i<n; i++) {
+    for (let i = 0; i < n; i++) {
         processes.push({
-            pid:i+1,
-            at:parseInt(document.getElementById("pat"+i).value),
-            bt:parseInt(document.getElementById("pbt"+i).value),
-            pr:parseInt(document.getElementById("pri"+i).value)
+            pid: i + 1,
+            at: parseInt(document.getElementById("pat" + i).value),
+            bt: parseInt(document.getElementById("pbt" + i).value),
+            pr: parseInt(document.getElementById("pri" + i).value)
         });
     }
 
-    processes.sort((a,b)=>{
+    processes.sort((a, b) => {
         if (a.at !== b.at) return a.at - b.at;
         return a.pr - b.pr;
     });
 
-    let time=0, result=[];
+    let time = 0;
+    let result = [];
+    lastResult = [];
 
-    processes.forEach(p=>{
+    processes.forEach(p => {
         let start = Math.max(time, p.at);
         let finish = start + p.bt;
-        result.push({pid:p.pid, start, finish});
+        let tat = finish - p.at;
+        let wt = tat - p.bt;
+
+        result.push({ pid: p.pid, start, finish });
+        lastResult.push({
+            process: "P" + p.pid,
+            arrival: p.at,
+            burst: p.bt,
+            priority: p.pr,
+            waiting: wt,
+            turnaround: tat
+        });
+
         time = finish;
     });
 
+    console.log("Saved Priority result:", lastResult);
     drawGantt(result);
 }
+
 
 /* ------------------------- Round Robin ------------------------- */
 function createRRInputs() {
@@ -197,43 +256,65 @@ function createRRInputs() {
 }
 
 function calculateRR() {
-    let n = document.getElementById("numRR").value;
-    let quantum = document.getElementById("quantum").value;
-    quantum = parseInt(quantum);
+    let n = parseInt(document.getElementById("numRR").value);
+    let quantum = parseInt(document.getElementById("quantum").value);
 
-    let ready = [], result=[], time=0;
-
-    for (let i=0; i<n; i++) {
-        ready.push({
-            pid:i+1,
-            bt:parseInt(document.getElementById("rrb"+i).value),
-            at:parseInt(document.getElementById("rra"+i).value),
-            rt:parseInt(document.getElementById("rrb"+i).value)
+    let processes = [];
+    for (let i = 0; i < n; i++) {
+        processes.push({
+            pid: i + 1,
+            at: parseInt(document.getElementById("rra" + i).value),
+            bt: parseInt(document.getElementById("rrb" + i).value),
+            rt: parseInt(document.getElementById("rrb" + i).value)
         });
     }
 
-    ready.sort((a,b)=>a.at - b.at);
+    processes.sort((a, b) => a.at - b.at);
 
-    let queue = [...ready];
+    let time = 0;
+    let queue = [...processes];
+    let result = [];
+    let completion = {};
 
-    while(queue.length > 0) {
+    while (queue.length > 0) {
         let p = queue.shift();
 
         let exec = Math.min(p.rt, quantum);
         let start = time;
         let finish = time + exec;
 
-        result.push({pid:p.pid, start, finish});
+        result.push({ pid: p.pid, start, finish });
 
         time = finish;
         p.rt -= exec;
 
-        if(p.rt > 0) queue.push(p);
+        if (p.rt > 0) {
+            queue.push(p);
+        } else {
+            completion[p.pid] = time;
+        }
     }
 
+    // ===== SAVE RESULT =====
+    lastResult = [];
+
+    processes.forEach(p => {
+        let tat = completion[p.pid] - p.at;
+        let wt = tat - p.bt;
+
+        lastResult.push({
+            process: "P" + p.pid,
+            arrival: p.at,
+            burst: p.bt,
+            waiting: wt,
+            turnaround: tat
+        });
+    });
+
+    console.log("Saved RR result:", lastResult);
     drawGantt(result);
-    document.getElementById("rrOutput").innerHTML = "Gantt Chart Shown Above";
 }
+
 
 /* ------------------------- Gantt Chart Universal ------------------------- */
 function drawGantt(processes) {
@@ -261,4 +342,46 @@ function drawGantt(processes) {
 
         x += width;
     });
+}
+
+const toggle = document.getElementById("themeToggle");
+
+if (toggle) {
+  toggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+
+    const isDark = document.body.classList.contains("dark");
+    toggle.innerText = isDark ? " Light Mode" : " Dark Mode";
+
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  });
+}
+// persist theme
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+}
+function downloadCSV() {
+    if (!lastResult || lastResult.length === 0) {
+        alert("No data to download!");
+        return;
+    }
+
+    const headers = Object.keys(lastResult[0]);
+    const rows = lastResult.map(obj =>
+        headers.map(h => obj[h]).join(",")
+    );
+
+    let csvContent =
+        headers.join(",") + "\n" +
+        rows.join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "scheduling_result.csv";
+    a.click();
+
+    URL.revokeObjectURL(url);
 }
